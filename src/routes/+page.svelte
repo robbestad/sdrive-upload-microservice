@@ -19,12 +19,10 @@
       const response = await axios.get(`https://v3.sdrive.app/upload/video?id=${videoid}`);
 
       if (response.status === 200) {
-        console.log(response.data);
-	progress = response.data.message.percent_finished;
+      	progress = response.data.message.percent_complete;
         if (response.data.message.finished) {
           // Video is ready
           clearInterval(intervalId); // Stop checking
-          console.log("VIDEO READY");
           // Set the video source
           videoSrc = response.data.message.playlist;
           const videoElement = document.getElementById("myvideo");
@@ -36,7 +34,7 @@
     }
   }
 
-  async function uploadFile(file) {
+  async function uploadFile(file, loading) {
     console.log("Uploading file...");
     console.log( file);
     
@@ -86,7 +84,7 @@
     if (file.type.startsWith('video/')) {
       selectedFile = file;
       console.log(`Selected file: ${file.name}`);
-      uploadFile(file);
+      uploadFile(file, loading);
     } else {
       console.log("Invalid file type. Please upload a video.");
     }
@@ -156,7 +154,6 @@
   <p>Selected file: {selectedFile.name}</p>
 {/if}
 
-{videoSrc}
 {#if loading}
 <div class="progress-container">
   <div class="progress-bar" style="width: {progress}%">
