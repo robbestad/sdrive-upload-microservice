@@ -1,8 +1,7 @@
 <script>
 	import axios from "axios";
-	import { Player, Video, DefaultUi, usePlayerStore, Hls } from "@vime/svelte";
-	// Custom UI component.
-	import TapSidesToSeek from "../lib/TapSidesToSeek.svelte";
+
+  // Custom UI component.
 	import { Jumper } from "svelte-loading-spinners";
 
 	// Obtain a ref if you need to call any methods.
@@ -14,10 +13,9 @@
 	let intervalId;
 	let permalink;
 
-	let videoid = ""; //"vtg1y3y0275de1akx217gimq";
-	let base = ""; //"https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1"
-	let videoSrc = ""; //`${base}/${videoid}.m3u8`;
-	let mimeType = "video/mp4";
+	let videoid = ""//"vtg1y3y0275de1akx217gimq";
+	let base = ""//"https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1"
+	let videoSrc = ""//`${base}/${videoid}.m3u8`;
 
 	async function checkForVideo(videoid) {
 		try {
@@ -92,13 +90,9 @@
 {/if}
 
 {#if videoSrc}
-	<Player bind:this={player}>
-		<Hls crossOrigin="">
-			<source data-src={videoSrc} type={mimeType} />
-		</Hls>
-
-		<DefaultUi>
-			<TapSidesToSeek />
-		</DefaultUi>
-	</Player>
+<mux-video
+  src={videoSrc}
+  controls
+>
+</mux-video>
 {/if}
