@@ -9,6 +9,7 @@
   let file;
   let intervalId;
   let permalink;
+    let progress = 0;
 
   let videoid = ""; //"vtg1y3y0275de1akx217gimq";
   let videoSrc = ""; //`https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1/${videoid}.m3u8`;
@@ -19,6 +20,7 @@
 
       if (response.status === 200) {
         console.log(response.data);
+	progress = response.data.message.percent_finished;
         if (response.data.message.finished) {
           // Video is ready
           clearInterval(intervalId); // Stop checking
@@ -73,20 +75,83 @@
       loading = false;
     }
   }
+  let selectedFile;
+
+function handleFileChange(event) {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile = file;
+    // Do something with the file, like uploading it to a server
+    console.log(`Selected file: ${file.name}`);
+    uploadFile(event);
+  }
+}
 </script>
 
-<h1>UPLOAD VIDEO</h1>
 
+<style>
+  h1{
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #eee;
+  }
+  .main {
+    margin: 1% 5%;
+    display:flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #eee;
+  }
+  
+  .progress-container {
+    width: 90%;
+    border-radius: 5px;
+    background-color: #666;
+  }
+
+  .progress-bar {
+    width: 0;
+    height: 10px;
+    background-color: #4caf50;
+    text-align: center;
+    line-height: 10px;
+    color: white;
+  }
+    /* Hide the file input */
+    #fileInput {
+    display: none;
+  }
+</style>
+
+<div class="main">
+
+<h1>SDrive video HLS upload microservice</h1>
 <form on:submit|preventDefault={uploadFile}>
-  <input type="file" name="uploadfile" id="uploadfile" />
-  <button type="submit">Upload</button>
+  <input type="file" id="fileInput" on:change={handleFileChange} />
 </form>
+<div id="uploadArea" on:click={() => fileInput.click()}>
+  Click here to upload a file
+</div>
+
+{#if selectedFile}
+  <p>Selected file: {selectedFile.name}</p>
+{/if}
 
 {videoSrc}
 {#if loading}
-  <Jumper size="60" color="#FF3E00" unit="px" duration="1s" />
+<div class="progress-container">
+  <div class="progress-bar" style="width: {progress}%">
+    {progress}%
+  </div>
+</div>
+  <Jumper size="60" color="#FFaa00" unit="px" duration="1s" />
 {/if}
 
 {#if videoSrc}
   <mux-video src={videoSrc} controls />
 {/if}
+</div>
+
+
