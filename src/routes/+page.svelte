@@ -84,7 +84,7 @@
     if (file.type.startsWith('video/')) {
       selectedFile = file;
       console.log(`Selected file: ${file.name}`);
-      uploadFile(event);
+      uploadFile(file);
     } else {
       console.log("Invalid file type. Please upload a video.");
     }
