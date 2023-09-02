@@ -141,9 +141,12 @@
 <form on:submit|preventDefault={uploadFile}>
   <input type="file" name="uploadfile" id="uploadfile" on:change={handleFileChange} accept="video/*" />
 </form>
-<div id="uploadArea" on:click={() => uploadfile.click()}>
+<button id="uploadArea" 
+     on:click={() => document.getElementById('uploadfile').click()} 
+     on:keydown={(e) => e.key === 'Enter' && document.getElementById('uploadfile').click()}
+     tabindex="0">
   Click here to upload a video file
-</div>
+</button>
 
 {#if selectedFile}
   <p>Selected file: {selectedFile.name}</p>
