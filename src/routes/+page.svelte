@@ -76,14 +76,18 @@
     }
   }
   let selectedFile;
-
-function handleFileChange(event) {
-  const file = event.target.files[0];
+  function handleFileChange(event) {
+  const inputElement = event.target;
+  const file = inputElement.files?.[0];
   if (file) {
-    selectedFile = file;
-    // Do something with the file, like uploading it to a server
-    console.log(`Selected file: ${file.name}`);
-    uploadFile(event);
+    // You can add more specific file type checks here if needed
+    if (file.type.startsWith('video/')) {
+      selectedFile = file;
+      console.log(`Selected file: ${file.name}`);
+      uploadFile(event);
+    } else {
+      console.log("Invalid file type. Please upload a video.");
+    }
   }
 }
 </script>
@@ -141,10 +145,10 @@ function handleFileChange(event) {
 
 <h1>SDrive video HLS upload microservice</h1>
 <form on:submit|preventDefault={uploadFile}>
-  <input type="file" id="fileInput" on:change={handleFileChange} />
+  <input type="file" id="fileInput" on:change={handleFileChange} accept="video/*" />
 </form>
 <div id="uploadArea" on:click={() => fileInput.click()}>
-  Click here to upload a file
+  Click here to upload a video file
 </div>
 
 {#if selectedFile}
