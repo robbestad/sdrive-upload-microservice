@@ -6,9 +6,7 @@
 
   let loading = false;
 
-  let file;
   let intervalId;
-  let permalink;
     let progress = 0;
 
   let videoid = ""; //"vtg1y3y0275de1akx217gimq";
@@ -34,7 +32,7 @@
     }
   }
 
-  async function uploadFile(file, loading) {
+  async function uploadFile(file) {
     console.log("Uploading file...");
     console.log( file);
     
@@ -59,20 +57,16 @@
       console.log(response.status);
       if (response.status === 200) {
         console.log(response.data);
-        permalink = response.data.permalink;
         videoid = response.data.id;
         console.log("Upload successful", response.data);
-        loading = false;
 
         // Start checking for the video
-        intervalId = setInterval(() => checkForVideo(response.data.id), 5000); // Check every 5 seconds
+        intervalId = setInterval(() => checkForVideo(response.data.id), 10000); // Check every 10 seconds
       } else {
         console.error("Upload failed");
-        loading = false;
       }
     } catch (error) {
       console.error("Upload failed", error);
-      loading = false;
     }
   }
   let selectedFile;
@@ -84,7 +78,8 @@
     if (file.type.startsWith('video/')) {
       selectedFile = file;
       console.log(`Selected file: ${file.name}`);
-      uploadFile(file, loading);
+      loading = true;
+      uploadFile(file);
     } else {
       console.log("Invalid file type. Please upload a video.");
     }
@@ -154,7 +149,7 @@
   <p>Selected file: {selectedFile.name}</p>
 {/if}
 
-{#if loading}
+{#if loading && !videoSrc}
 <div class="progress-container">
   <div class="progress-bar" style="width: {progress}%">
     {progress}%
