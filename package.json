@@ -17,5 +17,11 @@
 		"svelte": "^4.0.5",
 		"vite": "^4.4.2"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@vime/core": "^5.4.1",
+		"@vime/svelte": "^5.4.1",
+		"axios": "^1.5.0",
+		"svelte-loading-spinners": "^0.3.4"
+	}
 }
