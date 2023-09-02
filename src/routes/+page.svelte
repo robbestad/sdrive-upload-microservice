@@ -37,7 +37,6 @@
   }
 
   async function uploadFile(file) {
-    event.preventDefault();
     console.log("Uploading file...");
     console.log( file);
     
@@ -48,8 +47,7 @@
     videoid = "";
     videoSrc = "";
     formData.append("fileupload", uploadfile, filename); // The filename is just a string here
-
-    formData.append("mimetype", file);
+    formData.append("mimetype", file.type);
     formData.append("apikey", "59eb26e69d7fe1349e00e6e89f724b9d");
     formData.append("callback_url", "https://jobs.sdrive.app/callback");
     try {
