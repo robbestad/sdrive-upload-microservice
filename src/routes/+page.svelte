@@ -123,6 +123,18 @@ function handleFileChange(event) {
     #fileInput {
     display: none;
   }
+  #uploadArea{
+    border: 2px dotted #eee;
+    padding: 10px;
+    display: flex;
+    width: fit-content;
+  }
+  #uploadArea:hover{
+    background-color: #555;
+  }
+  #uploadArea:active{
+    background-color: #333;
+  }
 </style>
 
 <div class="main">
