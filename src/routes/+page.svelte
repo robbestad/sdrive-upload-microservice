@@ -36,14 +36,18 @@
     }
   }
 
-  async function uploadFile(event) {
+  async function uploadFile(file) {
+    event.preventDefault();
+    console.log("Uploading file...");
+    console.log( file);
+    
     const formData = new FormData();
-    const fileInput = event.target.uploadfile.files[0];
-    const filename = fileInput.name;
+    const uploadfile = file;
+    const filename = uploadfile.name;
     loading = true;
     videoid = "";
     videoSrc = "";
-    formData.append("fileupload", fileInput, filename); // The filename is just a string here
+    formData.append("fileupload", uploadfile, filename); // The filename is just a string here
 
     formData.append("mimetype", file);
     formData.append("apikey", "59eb26e69d7fe1349e00e6e89f724b9d");
@@ -92,7 +96,6 @@
 }
 </script>
 
-
 <style>
   h1{
     font-size: 1.5rem;
@@ -124,7 +127,7 @@
     color: white;
   }
     /* Hide the file input */
-    #fileInput {
+    #uploadfile {
     display: none;
   }
   #uploadArea{
@@ -145,9 +148,9 @@
 
 <h1>SDrive video HLS upload microservice</h1>
 <form on:submit|preventDefault={uploadFile}>
-  <input type="file" id="fileInput" on:change={handleFileChange} accept="video/*" />
+  <input type="file" name="uploadfile" id="uploadfile" on:change={handleFileChange} accept="video/*" />
 </form>
-<div id="uploadArea" on:click={() => fileInput.click()}>
+<div id="uploadArea" on:click={() => uploadfile.click()}>
   Click here to upload a video file
 </div>
 
