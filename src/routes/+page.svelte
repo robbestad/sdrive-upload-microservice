@@ -4,9 +4,6 @@
   // Custom UI component.
 	import { Jumper } from "svelte-loading-spinners";
 
-	// Obtain a ref if you need to call any methods.
-	let player;
-
 	let loading = false;
 
 	let file;
@@ -14,8 +11,7 @@
 	let permalink;
 
 	let videoid = ""//"vtg1y3y0275de1akx217gimq";
-	let base = ""//"https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1"
-	let videoSrc = ""//`${base}/${videoid}.m3u8`;
+	let videoSrc = ""//`https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1/${videoid}.m3u8`;
 
 	async function checkForVideo(videoid) {
 		try {
@@ -43,7 +39,8 @@
 		const fileInput = event.target.uploadfile.files[0];
 		const filename = fileInput.name;
 		loading = true;
-
+    videoid = "";
+    videoSrc = "";
 		formData.append("fileupload", fileInput, filename); // The filename is just a string here
 
 		formData.append("mimetype", file);
