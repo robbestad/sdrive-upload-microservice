@@ -16,7 +16,7 @@
 <svelte:head>
   <title>{title}</title>
   <meta name="title" content={title} />
-  <meta name="description" content={description}>
+  <meta name="description" content={description} />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:creator" content="@sdrive_app" />
