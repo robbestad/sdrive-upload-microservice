@@ -44,6 +44,7 @@
   let videoSrc = ""; //`https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1/${videoid}.m3u8`;
 
   async function checkForVideo(videoid) {
+    if(!videoid) return;
     try {
       const response = await axios.get(`https://v3.sdrive.app/upload/video?id=${videoid}`);
 
