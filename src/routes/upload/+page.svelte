@@ -1,9 +1,26 @@
 <script>
   import axios from "axios";
-
+  import { uploadSingleFile } from "$lib/uploader.js";
   // Custom UI component.
   import { Jumper } from "svelte-loading-spinners";
-
+  import { toasts, ToastContainer, FlatToast } from "svelte-toasts";
+  const showToast = () => {
+    const toast = toasts.add({
+      title: "Success",
+      description: "Form submitted successfully",
+      duration: 3000, // 0 or negative to avoid auto-remove
+      placement: "bottom-right",
+      type: "info",
+      theme: "dark",
+      placement: "bottom-right",
+      showProgress: true,
+      type: "success",
+      theme: "dark",
+      onClick: () => {},
+      onRemove: () => {}
+      // component: BootstrapToast, // allows to override toast component/template per toast
+    });
+  };
   let loading = false;
 
   let intervalId;
@@ -36,6 +53,14 @@
     console.log("Uploading file...");
     console.log(file);
 
+    let fileIndex = 0
+    let encrypted = true
+
+    uploadSingleFile(file, fileIndex, encrypted);
+    if (progress === 100) {
+      showToast();
+    }
+    /*
     const formData = new FormData();
     const uploadfile = file;
     const filename = uploadfile.name;
@@ -68,6 +93,7 @@
     } catch (error) {
       console.error("Upload failed", error);
     }
+    */
   }
   let selectedFile;
   function handleFileChange(event) {
@@ -131,6 +157,10 @@
   {#if videoSrc}
     <mux-video src={videoSrc} controls />
   {/if}
+
+  <ToastContainer let:data={toastdata}>
+    <FlatToast {toastdata} />
+  </ToastContainer>
 </div>
 
 <style>
