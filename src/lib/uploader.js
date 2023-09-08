@@ -17,17 +17,20 @@ const URLS = {
 };
 
 // Svelte stores for reactive variables
-let reponseFromUpload = writable([]);
-// Other Svelte stores like subscription, account, etc.
-let fileExtension = "";
+export let reponseFromUpload = writable([]);
 
-const uploadCompleted = async (file, totalChunkCount, fileGuid, fileIndex, chunks) => {
-  if (file?.name) {
-    const fileNameParts = file.name.split(".");
-    if (fileNameParts.length > 1) {
-      fileExtension = fileNameParts.pop() || "";
-    }
-  }
+// Other Svelte stores like subscription, account, etc.
+let upload_progress = 0;
+
+const uploadCompleted = async (file, totalChunkCount, fileGuid, fileIndex, chunks, path) => {
+  //console.log(file)
+  const completeresponse = await axios.post(URLS.reassemble, {
+    fileName: fileGuid,
+    chunkCount: totalChunkCount,
+    chunks,
+  })
+  console.log(completeresponse)
+
   const uploadresponse = await axios.post(URLS.process, {
     fileName: file.name,
     guid: fileGuid,
@@ -37,36 +40,49 @@ const uploadCompleted = async (file, totalChunkCount, fileGuid, fileIndex, chunk
     owner: user_pubkey,
     storageAccount: storage_account,
     userid: userid,
-    encrypted: true,
+    encrypted: false,
     transcode: false,
     username: username,
     mime: file?.type || "application/octet-stream",
-    ext: fileExtension,
-    folder: "/"
-  });
-
+    ext: file?.name.split(".").pop(),
+    folder: path.split("/").slice(0, -1).join("/") || "/",
+  })
   if (uploadresponse.status === 202) {
-    reponseFromUpload.update((prevArray) => [...prevArray, uploadresponse.data]);
+    $: console.log(uploadresponse.data)
+    let fileLink = {
+      name: uploadresponse.data,
+      link: `https://download.sdrive.app/public/${storage_account}/${fileGuid}`
+    }
+    console.log({fileLink})
+    reponseFromUpload.update((n) => [...n, fileLink])
+    //toast.success(`${file.name} uploaded successfully${file.size > 524000000 ? ", but it will take some time to process" : ""}`)
   }
-};
+}
 
-const uploadChunk = async (chunk, chunkIndex, fileId, totalChunks, fileName) => {
+
+const uploadChunk = async (
+  chunk,
+  chunkIndex,
+  fileId,
+  totalChunks,
+  fileName
+) => {
   console.log(`chunkIndex: ${chunkIndex} of ${totalChunks}`);
 
   const formData = new FormData();
-  formData.append("file", new Blob([chunk], { type: "application/octet-stream" }), fileName);
+  formData.append('file', new Blob([chunk], { type: 'application/octet-stream' }), fileName);
 
   const maxRetries = 3;
   let retries = 0;
 
-  const attemptUpload = async function () {
+  const attemptUpload = async () => {
     try {
       const response = await axios.post(URLS.uploadchunks, formData, {
         params: {
           id: chunkIndex,
           fileName: fileName,
-          identifier: fileId
-        }
+          identifier: fileId,
+        },
       });
 
       return response;
@@ -74,17 +90,16 @@ const uploadChunk = async (chunk, chunkIndex, fileId, totalChunks, fileName) => 
       retries++;
       if (retries <= maxRetries) {
         console.log(`Retrying chunk upload ${retries}/${maxRetries} for chunkIndex ${chunkIndex}`);
-        await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
         return attemptUpload();
       } else {
-        return Promise.reject();
+        return Promise.reject()
       }
     }
   };
 
   try {
     const response = await attemptUpload();
-
     const data = response.data;
     if (response.status === 201) {
       const percentage = (counter / totalChunks) * 100;
@@ -94,32 +109,31 @@ const uploadChunk = async (chunk, chunkIndex, fileId, totalChunks, fileName) => 
       return 0;
     }
   } catch (error) {
-    toast.error("Error Occurred: Failed to upload chunk after multiple retries");
+    //toast.error("Error Occurred: Failed to upload chunk after multiple retries");
     return 0;
   }
 };
 
-const uploadSingleFile = async (file, fileIndex, encrypted) => {
-    let fileGuid = `sdrive_${createId()}`;
-  const totalCount =
-    file.size % chunkSize === 0 ? file.size / chunkSize : Math.floor(file.size / chunkSize) + 1;
 
+const uploadSingleFile = async (file, fileIndex) => {
+  let fileGuid = `sdrive_${createId()}`;
+
+  const totalCount = file.size % chunkSize === 0 ? file.size / chunkSize : Math.floor(file.size / chunkSize) + 1
   $: console.log(`Number of chunks: ${totalCount}`);
 
-  let chunkIndex = 0;
-  let upload_progress = 0;
-  const uploadChunkPromises = [];
+  let chunkIndex = 0
+  const uploadChunkPromises = []
   let totalSizeUploaded = 0;
-  const chunks = [];
+  const chunks = []
 
   while (chunkIndex < totalCount) {
-    const uploadChunkPromisesBatch = [];
-    const remainingChunks = totalCount - chunkIndex;
-    const batchChunkCount = Math.min(3, remainingChunks);
+    const uploadChunkPromisesBatch = []
+    const remainingChunks = totalCount - chunkIndex
+    const batchChunkCount = Math.min(3, remainingChunks)
     for (let i = chunkIndex; i < chunkIndex + batchChunkCount; i++) {
-      const chunk = file.slice(i * chunkSize, i * chunkSize + chunkSize);
+      const chunk = file.slice(i * chunkSize, i * chunkSize + chunkSize)
       totalSizeUploaded += chunk.size;
-      let fileId = `sdrive_${createId()}`;
+      let fileId = `sdrive_${createId()}`
 
       chunks.push({ fileId, chunkIndex: i });
       const promise = uploadChunk(chunk, i, fileId, totalCount, fileId); // Assuming uploadChunk is defined elsewhere
@@ -131,17 +145,18 @@ const uploadSingleFile = async (file, fileIndex, encrypted) => {
             console.log(`Upload progress: ${upload_progress}`);
         });
     }
-    await Promise.all(uploadChunkPromisesBatch);
-    chunkIndex += batchChunkCount;
-    uploadChunkPromises.push(...uploadChunkPromisesBatch);
+    await Promise.all(uploadChunkPromisesBatch)
+    chunkIndex += batchChunkCount
+    uploadChunkPromises.push(...uploadChunkPromisesBatch)
   }
+  console.log(chunks)
 
-  $: console.log(chunks);
+  await Promise.all(uploadChunkPromises)
+  console.log("upload completed", file)
 
-  await Promise.all(uploadChunkPromises);
+  await uploadCompleted(file, totalCount, fileGuid, fileIndex, chunks, file.path || "/")
 
-  await uploadCompleted(file, totalCount, fileGuid, fileIndex, chunks); // Assuming uploadCompleted is defined elsewhere
+  return "done"
+}
 
-  return "done";
-};
 export { uploadSingleFile };

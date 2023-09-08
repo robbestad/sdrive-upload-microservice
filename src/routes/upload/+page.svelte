@@ -1,6 +1,8 @@
 <script>
+   import { onMount } from 'svelte';
+
   import axios from "axios";
-  import { uploadSingleFile } from "$lib/uploader.js";
+  import { uploadSingleFile, reponseFromUpload } from "$lib/uploader.js";
   // Custom UI component.
   import { Jumper } from "svelte-loading-spinners";
   import { toasts, ToastContainer, FlatToast } from "svelte-toasts";
@@ -18,10 +20,22 @@
       theme: "dark",
       onClick: () => {},
       onRemove: () => {}
-      // component: BootstrapToast, // allows to override toast component/template per toast
     });
   };
   let loading = false;
+
+  let uploadedFiles = [];
+ // Subscribe to changes in the store
+ const unsubscribe = reponseFromUpload.subscribe(($reponseFromUpload) => {
+    uploadedFiles = $reponseFromUpload;
+  });
+
+  // Unsubscribe when the component is destroyed
+  onMount(() => {
+    return () => {
+      unsubscribe();
+    };
+  });
 
   let intervalId;
   let progress = 0;
@@ -54,28 +68,23 @@
     console.log(file);
 
     let fileIndex = 0
-    let encrypted = true
 
-    uploadSingleFile(file, fileIndex, encrypted);
+    let result = await uploadSingleFile(file, fileIndex, false);
     if (progress === 100) {
       showToast();
     }
-    /*
-    const formData = new FormData();
-    const uploadfile = file;
-    const filename = uploadfile.name;
+    
+    console.log({progress, result});
+    const videoFile = uploadedFiles[0].link;
+
     loading = true;
     videoid = "";
     videoSrc = "";
-    formData.append("fileupload", uploadfile, filename); // The filename is just a string here
-    formData.append("mimetype", file.type);
-    formData.append("apikey", "59eb26e69d7fe1349e00e6e89f724b9d");
-    formData.append("callback_url", "https://jobs.sdrive.app/callback");
     try {
-      const response = await axios.post("https://v3.sdrive.app/upload/video", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
+      const response = await axios.post("https://v3.sdrive.app/convert/video", {
+        file: videoFile,
+        apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
+        callback_url: "https://jobs.sdrive.app/callback"
       });
       clearInterval(intervalId); // Stop checking
 
@@ -93,7 +102,6 @@
     } catch (error) {
       console.error("Upload failed", error);
     }
-    */
   }
   let selectedFile;
   function handleFileChange(event) {
@@ -137,10 +145,17 @@
     <p>Selected file: {selectedFile.name}</p>
   {/if}
 
+  <!-- Display uploaded files -->
+{#each uploadedFiles as fileLink (fileLink)}
+<p>{fileLink.link}</p>
+<p>{fileLink.name}</p>
+{/each}
+
   {#if videoid}
     <p>Video ID: {videoid}</p>
     <p>
-      It's okay to close this page and come back later. We'll keep checking for the video.
+      It's okay to close this page and come back later. We'll keep checking for the video 
+      and it will be ready to play on the Video page when it's done.<br/>
       Otherwise, wait for the video to finish processing to see it below.
     </p>
   {/if}
