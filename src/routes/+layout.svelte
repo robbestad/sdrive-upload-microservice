@@ -9,6 +9,6 @@
     <slot />
   </main>
   <footer>
-    <a target="_blank" href="https://sdrive.app">SDrive.app</a>
+    <a target="_blank" href="https://sdrive.app">SDrive.app</a> | <a href="https://github.com/robbestad/sdrive-upload-microservice">source</a>
   </footer>
 </div>

@@ -21,8 +21,6 @@
   </p>
   <p>
     This is Proof of concept and is intended for demonstration purposes to show how to use SDrive to
-    upload videos for HLS and use the platform as a streaming service. The source code is available on <a
-      href="https://github.com/robbestad/sdrive-upload-microservice">github</a
-    >.
+    upload videos for HLS and use the platform as a streaming service.
   </p>
 </div>
