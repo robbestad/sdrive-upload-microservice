@@ -5,14 +5,13 @@
   let { id, created_at, base, anim, screenshots } = data;
   let description = `SDrive video ${id}. Created at ${created_at}`;
   let title = `SDrive video ${id}`;
-  let filesrc = data.playlist;
+  //let filesrc = data.playlist;
+  let filesrc = url;
   let ogType = "video.other";
   let ogVideoTag = "viral";
   let ogVideoType = "video/mp4";
   let image  = `${base}/${screenshots[3]}`;
-
 </script>
-
 
 <svelte:head>
   <title>{title}</title>
