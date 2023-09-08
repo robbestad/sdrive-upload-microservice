@@ -18,7 +18,6 @@
   <meta name="twitter:creator" content="@sdrive_app" />
   <link rel="notImportant" href={url} />
   <link rel="canonical" href={url} />
-  <title>{title}</title>
   <meta content="#43B581" name="theme-color" />
   <meta name="twitter:site" content="@sdrive_app" />
   <meta name="twitter:image:src" content={image} />
