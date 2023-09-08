@@ -43,7 +43,6 @@
     name="twitter:player:stream"
     content="https://sdrive-upload-microservice.vercel.app/video/{id}"
   />
-  `;
 </svelte:head>
 
 <div class="main">
