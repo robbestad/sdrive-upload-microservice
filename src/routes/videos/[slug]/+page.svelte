@@ -2,14 +2,13 @@
   /** @type {import('./$types').PageData} */
   export let data;
   let url = `https://sdrive.app/videos/${data.id}`;
-  let { id, created_at, base, anim, screenshots } = data;
+  let { id, created_at, base, raw_file, anim, screenshots } = data;
   let description = `SDrive video ${id}. Created at ${created_at}`;
   let title = `SDrive video ${id}`;
-  //let filesrc = data.playlist;
-  let filesrc = url;
   let ogType = "video.other";
   let ogVideoTag = "viral";
   let ogVideoType = "video/mp4";
+  let filesrc  = raw_file;
   let image  = `${base}/${screenshots[3]}`;
 </script>
 
