@@ -81,12 +81,12 @@
     videoid = "";
     videoSrc = "";
     try {
-      const response = await axios.post("https://v3.sdrive.app/convert/video", {
-        file: videoFile,
+      const response = await axios.post("https://v3.sdrive.app/video/convert", {
+        file_url: videoFile,
         apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
         callback_url: "https://jobs.sdrive.app/callback"
       });
-      clearInterval(intervalId); // Stop checking
+      clearInterval(intervalId); // Stop checking if we were already checking
 
       console.log(response.status);
       if (response.status === 200) {
