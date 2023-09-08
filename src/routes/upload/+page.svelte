@@ -1,5 +1,5 @@
 <script>
-   import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   import axios from "axios";
   import { uploadSingleFile, reponseFromUpload } from "$lib/uploader.js";
@@ -25,8 +25,8 @@
   let loading = false;
 
   let uploadedFiles = [];
- // Subscribe to changes in the store
- const unsubscribe = reponseFromUpload.subscribe(($reponseFromUpload) => {
+  // Subscribe to changes in the store
+  const unsubscribe = reponseFromUpload.subscribe(($reponseFromUpload) => {
     uploadedFiles = $reponseFromUpload;
   });
 
@@ -64,27 +64,30 @@
   }
 
   async function uploadFile(file) {
-    console.log("Uploading file...");
-    console.log(file);
-
-    let fileIndex = 0
-
-    let result = await uploadSingleFile(file, fileIndex, false);
-    if (progress === 100) {
-      showToast();
-    }
-    
-    console.log({progress, result});
-    const videoFile = uploadedFiles[0].link;
-
-    loading = true;
-    videoid = "";
-    videoSrc = "";
     try {
+      console.log("Uploading file...");
+      console.log(file);
+
+      let fileIndex = 0;
+      const size = file.size;
+      const mimeType = file.type;
+
+      let result = await uploadSingleFile(file, fileIndex, false);
+
+      console.log({ progress, result });
+      const videoFile = uploadedFiles[0].link;
+
+      loading = true;
+      videoid = "";
+      videoSrc = "";
+
       const response = await axios.post("https://v3.sdrive.app/video/convert", {
         file_url: videoFile,
         apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
-        callback_url: "https://jobs.sdrive.app/callback"
+        callback_url: "https://jobs.sdrive.app/callback",
+        callback_method: "POST",
+        size: size,
+        mime_type: mimeType
       });
       clearInterval(intervalId); // Stop checking if we were already checking
 
@@ -146,16 +149,16 @@
   {/if}
 
   <!-- Display uploaded files -->
-{#each uploadedFiles as fileLink (fileLink)}
-<p>{fileLink.link}</p>
-<p>{fileLink.name}</p>
-{/each}
+  {#each uploadedFiles as fileLink (fileLink)}
+    <p>{fileLink.link}</p>
+    <p>{fileLink.name}</p>
+  {/each}
 
   {#if videoid}
     <p>Video ID: {videoid}</p>
     <p>
-      It's okay to close this page and come back later. We'll keep checking for the video 
-      and it will be ready to play on the Video page when it's done.<br/>
+      It's okay to close this page and come back later. We'll keep checking for the video and it
+      will be ready to play on the Video page when it's done.<br />
       Otherwise, wait for the video to finish processing to see it below.
     </p>
   {/if}
