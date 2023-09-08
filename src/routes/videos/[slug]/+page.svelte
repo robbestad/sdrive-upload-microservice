@@ -16,7 +16,7 @@
 <svelte:head>
   <title>{title}</title>
   <meta name="title" content={title} />
-  <meta name="description" content={description} />
+  <meta name="description" content={description}>
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:creator" content="@sdrive_app" />
@@ -49,7 +49,7 @@
 </svelte:head>
 
 <div class="main">
-  <h1>{data.id}</h1>
+  <h1>{title}</h1>
   {#if data.playlist}
     <mux-video src={data.playlist} class="video" controls />
   {/if}
