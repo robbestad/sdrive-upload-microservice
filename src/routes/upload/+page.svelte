@@ -1,11 +1,11 @@
 <script>
   import { onMount } from "svelte";
-
   import axios from "axios";
+  import {createId} from "@paralleldrive/cuid2";
   import { uploadSingleFile, reponseFromUpload } from "$lib/uploader.js";
-  // Custom UI component.
   import { Jumper } from "svelte-loading-spinners";
   import { toasts, ToastContainer, FlatToast } from "svelte-toasts";
+
   const showToast = () => {
     const toast = toasts.add({
       title: "Success",
@@ -65,6 +65,12 @@
   }
 
   async function uploadFile(file) {
+    videoid = null;
+    loading = true;
+    progress = 0;
+    videoSrc = "";
+    const id = createId();
+
     try {
       console.log("Uploading file...");
       console.log(file);
@@ -78,11 +84,8 @@
       console.log({ progress, result });
       const videoFile = uploadedFiles[0].link;
 
-      loading = true;
-      videoid = "";
-      videoSrc = "";
-
       const response = await axios.post("https://v3.sdrive.app/video/convert", {
+        id: id,
         file_url: videoFile,
         apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
         callback_url: "https://jobs.sdrive.app/callback",
@@ -94,12 +97,12 @@
 
       console.log(response.status);
       if (response.status === 200) {
+        videoid = id;
         console.log(response.data);
-        videoid = response.data.id;
         console.log("Upload successful", response.data);
 
         // Start checking for the video
-        intervalId = setInterval(() => checkForVideo(response.data.id), 10000); // Check every 10 seconds
+        intervalId = setInterval(() => checkForVideo(id), 10000); // Check every 10 seconds
       } else {
         console.error("Upload failed");
       }
