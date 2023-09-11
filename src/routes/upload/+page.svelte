@@ -1,10 +1,41 @@
 <script>
+  import { onMount } from "svelte";
   import axios from "axios";
-
-  // Custom UI component.
+  import {createId} from "@paralleldrive/cuid2";
+  import { uploadSingleFile, reponseFromUpload } from "$lib/uploader.js";
   import { Jumper } from "svelte-loading-spinners";
+  import { toasts, ToastContainer, FlatToast } from "svelte-toasts";
 
+  const showToast = () => {
+    const toast = toasts.add({
+      title: "Success",
+      description: "Form submitted successfully",
+      duration: 3000, // 0 or negative to avoid auto-remove
+      placement: "bottom-right",
+      type: "info",
+      theme: "dark",
+      placement: "bottom-right",
+      showProgress: true,
+      type: "success",
+      theme: "dark",
+      onClick: () => {},
+      onRemove: () => {}
+    });
+  };
   let loading = false;
+
+  let uploadedFiles = [];
+  // Subscribe to changes in the store
+  const unsubscribe = reponseFromUpload.subscribe(($reponseFromUpload) => {
+    uploadedFiles = $reponseFromUpload;
+  });
+
+  // Unsubscribe when the component is destroyed
+  onMount(() => {
+    return () => {
+      unsubscribe();
+    };
+  });
 
   let intervalId;
   let progress = 0;
@@ -13,6 +44,7 @@
   let videoSrc = ""; //`https://shdw-drive.genesysgo.net/GYSM8Nk9kw7rYz5NbRht8Mh9K3KKRKJ86sThxVzyF4n1/${videoid}.m3u8`;
 
   async function checkForVideo(videoid) {
+    if(!videoid) return;
     try {
       const response = await axios.get(`https://v3.sdrive.app/upload/video?id=${videoid}`);
 
@@ -33,35 +65,43 @@
   }
 
   async function uploadFile(file) {
-    console.log("Uploading file...");
-    console.log(file);
-
-    const formData = new FormData();
-    const uploadfile = file;
-    const filename = uploadfile.name;
+    videoid = null;
     loading = true;
-    videoid = "";
+    progress = 0;
     videoSrc = "";
-    formData.append("fileupload", uploadfile, filename); // The filename is just a string here
-    formData.append("mimetype", file.type);
-    formData.append("apikey", "59eb26e69d7fe1349e00e6e89f724b9d");
-    formData.append("callback_url", "https://jobs.sdrive.app/callback");
-    try {
-      const response = await axios.post("https://v3.sdrive.app/upload/video", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
-      clearInterval(intervalId); // Stop checking
+    const id = createId();
 
-      console.log(response.status);
+    try {
+      console.log("Uploading file...");
+      console.log(file);
+
+      let fileIndex = 0;
+      const size = file.size;
+      const mimeType = file.type;
+
+      let result = await uploadSingleFile(file, fileIndex, false);
+
+      console.log({ progress, result });
+      const videoFile = uploadedFiles[0].link;
+
+      const response = await axios.post("https://v3.sdrive.app/video/convert", {
+        id: id,
+        file_url: videoFile,
+        apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
+        callback_url: "https://jobs.sdrive.app/callback",
+        callback_method: "POST",
+        size: size,
+        mime_type: mimeType
+      });
+      clearInterval(intervalId); // Stop checking if we were already checking
+
       if (response.status === 200) {
+        videoid = id;
         console.log(response.data);
-        videoid = response.data.id;
         console.log("Upload successful", response.data);
 
         // Start checking for the video
-        intervalId = setInterval(() => checkForVideo(response.data.id), 10000); // Check every 10 seconds
+        intervalId = setInterval(() => checkForVideo(id), 10000); // Check every 10 seconds
       } else {
         console.error("Upload failed");
       }
@@ -111,10 +151,17 @@
     <p>Selected file: {selectedFile.name}</p>
   {/if}
 
+  <!-- Display uploaded files -->
+  {#each uploadedFiles as fileLink (fileLink)}
+    <p class="break-all">{fileLink.link}</p>
+    <p>{fileLink.name}</p>
+  {/each}
+
   {#if videoid}
     <p>Video ID: {videoid}</p>
     <p>
-      It's okay to close this page and come back later. We'll keep checking for the video.
+      It's okay to close this page and come back later. We'll keep checking for the video and it
+      will be ready to play on the Video page when it's done.<br />
       Otherwise, wait for the video to finish processing to see it below.
     </p>
   {/if}
@@ -131,6 +178,10 @@
   {#if videoSrc}
     <mux-video src={videoSrc} controls />
   {/if}
+
+  <ToastContainer let:data={toastdata}>
+    <FlatToast {toastdata} />
+  </ToastContainer>
 </div>
 
 <style>
