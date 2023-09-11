@@ -95,7 +95,6 @@
       });
       clearInterval(intervalId); // Stop checking if we were already checking
 
-      console.log(response.status);
       if (response.status === 200) {
         videoid = id;
         console.log(response.data);
@@ -154,7 +153,7 @@
 
   <!-- Display uploaded files -->
   {#each uploadedFiles as fileLink (fileLink)}
-    <p>{fileLink.link}</p>
+    <p class="break-all">{fileLink.link}</p>
     <p>{fileLink.name}</p>
   {/each}
 
