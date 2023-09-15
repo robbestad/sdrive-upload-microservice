@@ -88,7 +88,7 @@
         id: id,
         file_url: videoFile,
         apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
-        callback_url: "https://jobs.sdrive.app/callback",
+        callback_url: "https://job.sdrive.app/callback",
         callback_method: "POST",
         size: size,
         mime_type: mimeType
