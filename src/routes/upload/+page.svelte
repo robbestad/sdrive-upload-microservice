@@ -84,7 +84,7 @@
       console.log({ progress, result });
       const videoFile = uploadedFiles[0].link;
 
-      const response = await axios.post("https://v3.sdrive.app/video/convert", {
+      const response = await axios.post("https://sdrive.app/api/v3/upload/video", {
         id: id,
         file_url: videoFile,
         apikey: "59eb26e69d7fe1349e00e6e89f724b9d",
